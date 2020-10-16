@@ -49,6 +49,9 @@ public class FlutterUnityView implements PlatformView, MethodChannel.MethodCallH
         Log.d(String.valueOf(this), "onMethodCall: " + call.method);
         reattach();
         switch (call.method) {
+            case "dispose":
+                dispose();
+                break;
             case "pause":
                 plugin.getPlayer().pause();
                 result.success(null);

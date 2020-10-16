@@ -31,6 +31,10 @@ class UnityViewController {
     }
   }
 
+  void dispose() {
+    _channel.invokeMethod('dispose');
+  }
+
   void pause() {
     _channel.invokeMethod('pause');
   }
