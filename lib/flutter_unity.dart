@@ -18,12 +18,12 @@ class UnityViewController {
     switch (call.method) {
       case 'onUnityViewReattached':
         if (_view.onReattached != null) {
-          _view.onReattached(this);
+          _view.onReattached!(this);
         }
         return null;
       case 'onUnityViewMessage':
         if (_view.onMessage != null) {
-          _view.onMessage(this, call.arguments);
+          _view.onMessage!(this, call.arguments);
         }
         return null;
       default:
@@ -53,34 +53,34 @@ class UnityViewController {
 }
 
 typedef void UnityViewCreatedCallback(
-  UnityViewController controller,
+  UnityViewController? controller,
 );
 typedef void UnityViewReattachedCallback(
   UnityViewController controller,
 );
 typedef void UnityViewMessageCallback(
   UnityViewController controller,
-  String message,
+  String? message,
 );
 
 class UnityView extends StatefulWidget {
   const UnityView({
-    Key key,
+    Key? key,
     this.onCreated,
     this.onReattached,
     this.onMessage,
   }) : super(key: key);
 
-  final UnityViewCreatedCallback onCreated;
-  final UnityViewReattachedCallback onReattached;
-  final UnityViewMessageCallback onMessage;
+  final UnityViewCreatedCallback? onCreated;
+  final UnityViewReattachedCallback? onReattached;
+  final UnityViewMessageCallback? onMessage;
 
   @override
   _UnityViewState createState() => _UnityViewState();
 }
 
 class _UnityViewState extends State<UnityView> {
-  UnityViewController controller;
+  UnityViewController? controller;
 
   @override
   void initState() {
@@ -125,7 +125,7 @@ class _UnityViewState extends State<UnityView> {
   void onPlatformViewCreated(int id) {
     controller = UnityViewController._(widget, id);
     if (widget.onCreated != null) {
-      widget.onCreated(controller);
+      widget.onCreated!(controller);
     }
   }
 }

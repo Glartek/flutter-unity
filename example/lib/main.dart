@@ -53,7 +53,7 @@ class UnityViewPage extends StatefulWidget {
 }
 
 class _UnityViewPageState extends State<UnityViewPage> {
-  UnityViewController unityViewController;
+  UnityViewController? unityViewController;
 
   @override
   void initState() {
@@ -79,12 +79,12 @@ class _UnityViewPageState extends State<UnityViewPage> {
     );
   }
 
-  void onUnityViewCreated(UnityViewController controller) {
+  void onUnityViewCreated(UnityViewController? controller) {
     print('onUnityViewCreated');
 
     unityViewController = controller;
 
-    controller.send(
+    controller?.send(
       'Cube',
       'SetRotationSpeed',
       '30',
@@ -95,7 +95,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
     print('onUnityViewReattached');
   }
 
-  void onUnityViewMessage(UnityViewController controller, String message) {
+  void onUnityViewMessage(UnityViewController controller, String? message) {
     print('onUnityViewMessage');
 
     print(message);
