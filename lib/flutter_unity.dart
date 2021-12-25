@@ -96,9 +96,9 @@ class _UnityViewState extends State<UnityView> {
   @override
   void dispose() {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      controller?._channel?.invokeMethod('dispose');
+      controller?._channel.invokeMethod('dispose');
     }
-    controller?._channel?.setMethodCallHandler(null);
+    controller?._channel.setMethodCallHandler(null);
     super.dispose();
   }
 
@@ -110,13 +110,11 @@ class _UnityViewState extends State<UnityView> {
           viewType: 'unity_view',
           onPlatformViewCreated: onPlatformViewCreated,
         );
-        break;
       case TargetPlatform.iOS:
         return UiKitView(
           viewType: 'unity_view',
           onPlatformViewCreated: onPlatformViewCreated,
         );
-        break;
       default:
         throw UnsupportedError('Unsupported platform: $defaultTargetPlatform');
     }
