@@ -104,6 +104,12 @@ class _UnityViewState extends State<UnityView> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return HtmlElementView(
+        viewType: 'unity_view',
+        onPlatformViewCreated: onPlatformViewCreated,
+      );
+    }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return AndroidView(

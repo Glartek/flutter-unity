@@ -21,6 +21,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   io: ^1.0.3
 
 # For information on the generic Dart part of this file, see the
@@ -35,6 +37,9 @@ flutter:
         pluginClass: FlutterUnityPlugin
       ios:
         pluginClass: FlutterUnityPlugin
+      web:
+        pluginClass: FlutterUnityPlugin
+        fileName: flutter_unity_web.dart
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
