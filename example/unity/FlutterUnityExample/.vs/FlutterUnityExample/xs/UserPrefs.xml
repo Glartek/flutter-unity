@@ -1,0 +1,21 @@
+﻿<Properties StartupConfiguration="{3FB76794-5377-8D51-D6D0-96E6FD41A4FC}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Rotate.cs">
+    <Files>
+      <File FileName="Assets/Rotate.cs" Line="21" Column="46" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="FlutterUnityExample" expanded="True" selected="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="5fe7a05a-b69e-4ae2-81ba-af3b32c3d988" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

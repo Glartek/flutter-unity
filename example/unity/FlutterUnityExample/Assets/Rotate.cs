@@ -19,8 +19,10 @@ public class Rotate : MonoBehaviour
     }
 
     public void SetRotationSpeed(string data)
-    {
+    {        
         FlutterUnityPlugin.Message message = FlutterUnityPlugin.Messages.Receive(data);
+
+        Debug.Log($"[DATA]: {message.data}");
 
         float value = float.Parse(message.data);
 

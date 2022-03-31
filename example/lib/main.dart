@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity/flutter_unity.dart';
-import 'package:flutter_unity_widget_web/flutter_unity_widget_web.dart';
+import 'package:flutter_unity_example/unity/unity.dart';
 
 void main() => runApp(App());
 
@@ -55,8 +55,7 @@ class UnityViewPage extends StatefulWidget {
 }
 
 class _UnityViewPageState extends State<UnityViewPage> {
-  UnityViewController? unityViewController;
-  UnityWebController? unityWebController;
+  dynamic unityViewController;
 
   @override
   void initState() {
@@ -68,50 +67,29 @@ class _UnityViewPageState extends State<UnityViewPage> {
     super.dispose();
   }
 
-  Widget buildUnityWidget() {
-    if (kIsWeb) {
-      late String baseURI;
-      if (kReleaseMode) {
-        baseURI = 'https://myapp.com';
-      } else {
-        baseURI = 'http://localhost:${Uri.base.port}';
-      }
-      return UnityWebWidget(
-        url: '$baseURI/unity/index.html',
-        listenMessageFromUnity: onUnityViewMessage,
-        onUnityLoaded: (webController) => onUnityViewCreated(
-          webController: webController,
-        ),
-      );
-    }
-    return UnityView(
-      onCreated: (controller) => onUnityViewCreated(controller: controller),
-      onReattached: onUnityViewReattached,
-      onMessage: (_, message) => onUnityViewMessage(message),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Plugin example app'),
       ),
-      body: buildUnityWidget(),
+      body: UnityWidget.buildUnityWidget(
+        onMessage: (message) => onUnityViewMessage,
+        onUnityViewCreated: (controller) => onUnityViewCreated,
+        onReattached: (controller) => onUnityViewReattached,
+      ),
     );
   }
 
-  void onUnityViewCreated({
-    UnityViewController? controller,
-    UnityWebController? webController,
-  }) {
+  void onUnityViewCreated(
+    dynamic controller,
+  ) {
     print('onUnityViewCreated');
 
     unityViewController ??= controller;
-    unityWebController ??= webController;
 
     if (kIsWeb) {
-      webController?.sendDataToUnity(
+      controller?.sendDataToUnity(
         gameObject: 'Cube',
         method: 'SetRotationSpeed',
         data: '30',
