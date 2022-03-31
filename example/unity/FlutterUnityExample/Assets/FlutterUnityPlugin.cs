@@ -8,6 +8,16 @@ namespace FlutterUnityPlugin
         public int id;
         public string data;
 
+        public Message() { }
+
+		public Message(
+			int id,
+			string data
+			) {
+			this.id = id;
+			this.data = data;
+		}
+
         public static Message FromJson(string json)
         {
             return JsonUtility.FromJson<Message>(json);
@@ -37,17 +47,30 @@ namespace FlutterUnityPlugin
                 #if UNITY_IOS
                 FlutterUnityPluginOnMessage(data);
                 #endif
+
+                #if UNITY_WEBGL
+                SendMessageToWeb(message.data);
+                #endif				
             }
         }
 
         public static Message Receive(string data)
         {
+            if (Application.platform == RuntimePlatform.WebGLPlayer) {
+				Message message = new Message(0, data);
+				return message;
+			}
             return Message.FromJson(data);
         }
 
         #if UNITY_IOS
         [DllImport("__Internal")]
         private static extern void FlutterUnityPluginOnMessage(string data);
+        #endif
+
+        #if UNITY_WEBGL
+        [DllImport("__Internal")]
+		private static extern void SendMessageToWeb(string data);
         #endif
     }
 }
