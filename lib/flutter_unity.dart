@@ -1,17 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_unity_widget_web/flutter_unity_widget_web.dart';
 
 class UnityViewController {
   UnityViewController._(
     UnityView view,
-    int id,
-  )   : _view = view,
+    int id, {
+    UnityWebController? webController,
+  })  : _view = view,
+        _webController = webController,
         _channel = MethodChannel('unity_view_$id') {
     _channel.setMethodCallHandler(_methodCallHandler);
   }
 
   UnityView _view;
+  UnityWebController? _webController;
   final MethodChannel _channel;
 
   Future<dynamic> _methodCallHandler(MethodCall call) async {
@@ -44,11 +48,16 @@ class UnityViewController {
     String methodName,
     String message,
   ) {
-    _channel.invokeMethod('send', {
-      'gameObjectName': gameObjectName,
-      'methodName': methodName,
-      'message': message,
-    });
+    if (kIsWeb) {
+      _webController?.sendDataToUnity(
+          gameObject: gameObjectName, method: methodName, data: message);
+    } else {
+      _channel.invokeMethod('send', {
+        'gameObjectName': gameObjectName,
+        'methodName': methodName,
+        'message': message,
+      });
+    }
   }
 }
 
@@ -59,7 +68,7 @@ typedef void UnityViewReattachedCallback(
   UnityViewController controller,
 );
 typedef void UnityViewMessageCallback(
-  UnityViewController controller,
+  UnityViewController? controller,
   String? message,
 );
 
@@ -69,11 +78,13 @@ class UnityView extends StatefulWidget {
     this.onCreated,
     this.onReattached,
     this.onMessage,
+    this.webUrl,
   }) : super(key: key);
 
   final UnityViewCreatedCallback? onCreated;
   final UnityViewReattachedCallback? onReattached;
   final UnityViewMessageCallback? onMessage;
+  final String? webUrl;
 
   @override
   _UnityViewState createState() => _UnityViewState();
@@ -81,6 +92,7 @@ class UnityView extends StatefulWidget {
 
 class _UnityViewState extends State<UnityView> {
   UnityViewController? controller;
+  UnityWebController? webController;
 
   @override
   void initState() {
@@ -99,11 +111,25 @@ class _UnityViewState extends State<UnityView> {
       controller?._channel.invokeMethod('dispose');
     }
     controller?._channel.setMethodCallHandler(null);
+    webController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      assert(widget.webUrl != null,
+          'The webUrl cannot be null if you want Unity WebGL to work on Flutter Web. Please add the argument webUrl.');
+
+      return UnityWebWidget(
+        url: widget.webUrl!,
+        onUnityLoaded: (unityWebController) => onPlatformViewCreated(
+          0,
+          unityWebController: unityWebController,
+        ),
+        listenMessageFromUnity: (message) => widget.onMessage!(null, message),
+      );
+    }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return AndroidView(
@@ -120,8 +146,18 @@ class _UnityViewState extends State<UnityView> {
     }
   }
 
-  void onPlatformViewCreated(int id) {
-    controller = UnityViewController._(widget, id);
+  void onPlatformViewCreated(
+    int id, {
+    UnityWebController? unityWebController,
+  }) {
+    controller = UnityViewController._(
+      widget,
+      id,
+      webController: webController,
+    );
+    if (unityWebController != null) {
+      webController = unityWebController;
+    }
     if (widget.onCreated != null) {
       widget.onCreated!(controller);
     }

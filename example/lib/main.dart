@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity/flutter_unity.dart';
-import 'package:flutter_unity_example/unity/unity.dart';
 
 void main() => runApp(App());
 
@@ -55,8 +54,6 @@ class UnityViewPage extends StatefulWidget {
 }
 
 class _UnityViewPageState extends State<UnityViewPage> {
-  dynamic unityViewController;
-
   @override
   void initState() {
     super.initState();
@@ -69,38 +66,36 @@ class _UnityViewPageState extends State<UnityViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    late String baseURI;
+    if (kReleaseMode) {
+      // Use here your release base uri for your app (without #!)
+      // Example:
+      // baseURI = 'https://MyFlutterApp.com';
+    } else {
+      baseURI = 'http://localhost:${Uri.base.port}';
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Plugin example app'),
       ),
-      body: UnityWidget.buildUnityWidget(
-        onMessage: (message) => onUnityViewMessage,
-        onUnityViewCreated: (controller) => onUnityViewCreated,
-        onReattached: (controller) => onUnityViewReattached,
+      body: UnityView(
+        onCreated: (controller) => onUnityViewCreated(controller!),
+        onReattached: onUnityViewReattached,
+        onMessage: (_, message) => onUnityViewMessage(message),
+        webUrl: '$baseURI/unity/index.html',
       ),
     );
   }
 
-  void onUnityViewCreated(
-    dynamic controller,
-  ) {
+  void onUnityViewCreated(UnityViewController controller) {
     print('onUnityViewCreated');
 
-    unityViewController ??= controller;
-
-    if (kIsWeb) {
-      controller?.sendDataToUnity(
-        gameObject: 'Cube',
-        method: 'SetRotationSpeed',
-        data: '30',
-      );
-    } else {
-      controller?.send(
-        'Cube',
-        'SetRotationSpeed',
-        '30',
-      );
-    }
+    controller.send(
+      'Cube',
+      'SetRotationSpeed',
+      '30',
+    );
   }
 
   void onUnityViewReattached(UnityViewController controller) {
