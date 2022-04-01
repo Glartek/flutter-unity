@@ -111,7 +111,8 @@ class _UnityViewState extends State<UnityView> {
       controller?._channel.invokeMethod('dispose');
     }
     controller?._channel.setMethodCallHandler(null);
-    webController?.dispose();
+    // Disposing web leads to unwanted errors
+    // webController?.dispose();
     super.dispose();
   }
 
