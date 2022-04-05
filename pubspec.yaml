@@ -21,8 +21,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_unity_widget_web: ^1.0.1
   io: ^1.0.3
+  universal_html: ^2.0.8
+  webviewx: ^0.2.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

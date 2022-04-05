@@ -1,22 +1,25 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_unity_widget_web/flutter_unity_widget_web.dart';
+import 'package:flutter_unity/web/unity_web_controller.dart';
+import 'package:flutter_unity/web/unity_web_widget.dart';
 
 class UnityViewController {
   UnityViewController._(
     UnityView view,
-    int id, {
+    int id,
     UnityWebController? webController,
-  })  : _view = view,
+  )   : _view = view,
         _webController = webController,
         _channel = MethodChannel('unity_view_$id') {
-    _channel.setMethodCallHandler(_methodCallHandler);
+    if (!kIsWeb) {
+      _channel.setMethodCallHandler(_methodCallHandler);
+    }
   }
 
   UnityView _view;
-  UnityWebController? _webController;
   final MethodChannel _channel;
+  final UnityWebController? _webController;
 
   Future<dynamic> _methodCallHandler(MethodCall call) async {
     switch (call.method) {
@@ -26,9 +29,7 @@ class UnityViewController {
         }
         return null;
       case 'onUnityViewMessage':
-        if (_view.onMessage != null) {
-          _view.onMessage!(this, call.arguments);
-        }
+        _view.onMessage(this, call.arguments);
         return null;
       default:
         throw UnimplementedError('Unimplemented method: ${call.method}');
@@ -50,7 +51,10 @@ class UnityViewController {
   ) {
     if (kIsWeb) {
       _webController?.sendDataToUnity(
-          gameObject: gameObjectName, method: methodName, data: message);
+        gameObject: gameObjectName,
+        method: methodName,
+        data: message,
+      );
     } else {
       _channel.invokeMethod('send', {
         'gameObjectName': gameObjectName,
@@ -75,15 +79,15 @@ typedef void UnityViewMessageCallback(
 class UnityView extends StatefulWidget {
   const UnityView({
     Key? key,
-    this.onCreated,
+    required this.onCreated,
+    required this.onMessage,
     this.onReattached,
-    this.onMessage,
     this.webUrl,
   }) : super(key: key);
 
-  final UnityViewCreatedCallback? onCreated;
+  final UnityViewCreatedCallback onCreated;
   final UnityViewReattachedCallback? onReattached;
-  final UnityViewMessageCallback? onMessage;
+  final UnityViewMessageCallback onMessage;
   final String? webUrl;
 
   @override
@@ -92,7 +96,6 @@ class UnityView extends StatefulWidget {
 
 class _UnityViewState extends State<UnityView> {
   UnityViewController? controller;
-  UnityWebController? webController;
 
   @override
   void initState() {
@@ -111,8 +114,6 @@ class _UnityViewState extends State<UnityView> {
       controller?._channel.invokeMethod('dispose');
     }
     controller?._channel.setMethodCallHandler(null);
-    // Disposing web leads to unwanted errors
-    // webController?.dispose();
     super.dispose();
   }
 
@@ -120,15 +121,15 @@ class _UnityViewState extends State<UnityView> {
   Widget build(BuildContext context) {
     if (kIsWeb) {
       assert(widget.webUrl != null,
-          'The webUrl cannot be null if you want Unity WebGL to work on Flutter Web. Please add the argument webUrl.');
+          'webUrl argument is necessary for Unity WebGL! Please add a webUrl to UnityView.');
 
       return UnityWebWidget(
         url: widget.webUrl!,
-        onUnityLoaded: (unityWebController) => onPlatformViewCreated(
+        listenMessageFromUnity: (message) => widget.onMessage(null, message),
+        onUnityLoaded: (controller) => onPlatformViewCreated(
           0,
-          unityWebController: unityWebController,
+          webController: controller,
         ),
-        listenMessageFromUnity: (message) => widget.onMessage!(null, message),
       );
     }
     switch (defaultTargetPlatform) {
@@ -149,18 +150,9 @@ class _UnityViewState extends State<UnityView> {
 
   void onPlatformViewCreated(
     int id, {
-    UnityWebController? unityWebController,
+    UnityWebController? webController,
   }) {
-    controller = UnityViewController._(
-      widget,
-      id,
-      webController: webController,
-    );
-    if (unityWebController != null) {
-      webController = unityWebController;
-    }
-    if (widget.onCreated != null) {
-      widget.onCreated!(controller);
-    }
+    controller = UnityViewController._(widget, id, webController);
+    widget.onCreated(controller);
   }
 }

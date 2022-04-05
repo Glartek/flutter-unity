@@ -80,25 +80,25 @@ class _UnityViewPageState extends State<UnityViewPage> {
         title: const Text('Plugin example app'),
       ),
       body: UnityView(
-        onCreated: (controller) => onUnityViewCreated(controller!),
-        onReattached: onUnityViewReattached,
+        onCreated: (controller) => onUnityViewCreated(controller),
+        onReattached: (controller) => onUnityViewReattached,
         onMessage: (_, message) => onUnityViewMessage(message),
         webUrl: '$baseURI/unity/index.html',
       ),
     );
   }
 
-  void onUnityViewCreated(UnityViewController controller) {
+  void onUnityViewCreated(UnityViewController? controller) {
     print('onUnityViewCreated');
 
-    controller.send(
+    controller?.send(
       'Cube',
       'SetRotationSpeed',
       '30',
     );
   }
 
-  void onUnityViewReattached(UnityViewController controller) {
+  void onUnityViewReattached(UnityViewController? controller) {
     print('onUnityViewReattached');
   }
 
