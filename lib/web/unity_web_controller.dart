@@ -8,6 +8,8 @@ class UnityWebController {
   UnityWebController({required Function(String data) listenMessageFromUnity}) {
     html.window.addEventListener('message', (event) {
       listenMessageFromUnity((event as html.MessageEvent).data.toString());
+
+      refreshUnityView();
     });
   }
 
@@ -18,7 +20,7 @@ class UnityWebController {
   /// ```dart
   /// sendDataToUnity("GameManager", "openScene", "ThirdScene")
   /// ```
-  sendDataToUnity({
+  void sendDataToUnity({
     required String gameObject,
     required String method,
     required String data,
@@ -32,6 +34,14 @@ class UnityWebController {
       }),
     );
     html.window.dispatchEvent(_flutter2js);
+    refreshUnityView();
+  }
+
+  void refreshUnityView() {
+    html.IFrameElement? frame = (html.document
+        .querySelector('flt-platform-view')!
+        .querySelector('iframe')! as html.IFrameElement);
+    frame.focus();
   }
 
   void dispose() {
